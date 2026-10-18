@@ -1,16 +1,21 @@
 ---
+import { resolve } from "node:path";
+import sharp from "sharp";
 import { photos } from "../data/photos";
 import { publicImage } from "../lib/images";
 
 // The whole section stays hidden until there are at least 4 photos.
 const show = photos.length >= 4;
 
+// Read each thumbnail's real size so the masonry reserves space (no layout jump).
 const items = show
-  ? photos.map((p) => ({
-      ...p,
-      full: publicImage("gallery", p.image),
-      thumb: publicImage("gallery", p.image.replace(/\.(\w+)$/, "-sm.$1")),
-    }))
+  ? await Promise.all(
+      photos.map(async (p) => {
+        const thumb = publicImage("gallery", p.image.replace(/\.(\w+)$/, "-sm.$1"));
+        const { width, height } = await sharp(resolve("public", thumb.slice(1))).metadata();
+        return { ...p, full: publicImage("gallery", p.image), thumb, width, height };
+      }),
+    )
   : [];
 ---
 
@@ -21,7 +26,7 @@ const items = show
 
       <ul class="photos" role="list">
         {items.map((p) => (
-          <li class={p.size}>
+          <li>
             <button
               type="button"
               class="open"
@@ -30,7 +35,7 @@ const items = show
               data-caption={p.caption ?? ""}
               aria-label={`Open photo: ${p.caption || p.alt}`}
             >
-              <img src={p.thumb} alt={p.alt} loading="lazy" decoding="async" />
+              <img src={p.thumb} alt={p.alt} width={p.width} height={p.height} loading="lazy" decoding="async" />
               {p.caption && <span class="cap label">{p.caption}</span>}
             </button>
           </li>
@@ -49,37 +54,28 @@ const items = show
 }
 
 <style>
-  /* Assorted grid: tiles span 1–2 columns/rows; "dense" back-fills the gaps */
+  /* Masonry via CSS columns: every photo at its true proportions, no cropping */
   .photos {
     list-style: none;
-    margin: 0;
+    max-width: 640px;
+    margin: 0 auto;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-auto-rows: 150px;
-    grid-auto-flow: dense;
-    gap: 10px;
+    columns: 3;
+    column-gap: 8px;
   }
 
-  .photos .big {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-  .photos .wide {
-    grid-column: span 2;
-  }
-  .photos .tall {
-    grid-row: span 2;
+  .photos li {
+    break-inside: avoid;
+    margin-bottom: 8px;
   }
 
   .open {
     position: relative;
     display: block;
     width: 100%;
-    height: 100%;
     padding: 0;
     border: 1px solid var(--line);
-    border-radius: var(--radius);
+    border-radius: 6px;
     overflow: hidden;
     background: var(--plate);
     cursor: zoom-in;
@@ -95,19 +91,18 @@ const items = show
 
   .open img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
   }
 
   .cap {
     position: absolute;
-    left: 8px;
-    bottom: 8px;
-    padding: 3px 7px;
-    border-radius: 6px;
+    left: 6px;
+    bottom: 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
     background: var(--bg);
     color: var(--fg);
-    font-size: 10px;
+    font-size: 9px;
   }
 
   dialog {
@@ -146,8 +141,7 @@ const items = show
 
   @media (max-width: 600px) {
     .photos {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-rows: 130px;
+      columns: 2;
     }
   }
 </style>

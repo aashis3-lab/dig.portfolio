@@ -1,0 +1,40 @@
+---
+// Thin marigold engineering ruler, full window width. Decorative only.
+// One 120px repeat = 10 ticks every 12px: 5px ticks, 10px every 5th, 14px every 10th,
+// all standing on a 1px baseline. Tiled with repeat-x so it stays crisp at any width.
+// "bottom": baseline at the bottom edge, ticks up. "top": the same strip flipped.
+interface Props {
+  edge: "top" | "bottom";
+}
+const { edge } = Astro.props;
+
+const H = 16; // strip height
+const base = H - 0.5; // 1px baseline, pixel-aligned
+const ticks = Array.from({ length: 10 }, (_, i) => {
+  const h = i === 0 ? 14 : i === 5 ? 10 : 5;
+  const x = i * 12 + 0.5;
+  return `<path d="M${x} ${base}V${base - h}"/>`;
+}).join("");
+
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="${H}" viewBox="0 0 120 ${H}" fill="none" stroke="#F28C28" stroke-width="1" shape-rendering="crispEdges"><path d="M0 ${base}H120"/>${ticks}</svg>`;
+const bg = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+---
+
+<div class:list={["ruler", edge]} style={`--ruler: ${bg}`} aria-hidden="true"></div>
+
+<style>
+  .ruler {
+    display: block;
+    width: 100%;
+    height: 16px;
+    background-image: var(--ruler);
+    background-repeat: repeat-x;
+    background-size: 120px 16px;
+    pointer-events: none;
+  }
+
+  /* Top: same ruler flipped — baseline on the top edge, ticks pointing down */
+  .top {
+    transform: scaleY(-1);
+  }
+</style>

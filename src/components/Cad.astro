@@ -12,6 +12,7 @@ import { publicImage } from "../lib/images";
         <li class="tile card">
           <div class="plate">
             {r.model ? (
+              <>
               <model-viewer
                 src={publicImage("cad", r.model)}
                 alt={r.alt}
@@ -30,6 +31,11 @@ import { publicImage } from "../lib/images";
                   <span class="label muted">3D model loads here</span>
                 </div>
               </model-viewer>
+              {/* Phones only: rotation stays off (so swipes scroll the row) until this is tapped */}
+              <button type="button" class="tap" aria-label={`Rotate ${r.name}`}>
+                <span class="label">Tap to rotate</span>
+              </button>
+              </>
             ) : r.image ? (
               <img src={publicImage("cad", r.image)} alt={r.alt} loading="lazy" decoding="async" />
             ) : (
@@ -71,6 +77,7 @@ import { publicImage } from "../lib/images";
   }
 
   .plate {
+    position: relative;
     aspect-ratio: 1;
     background: var(--plate);
     display: grid;
@@ -153,14 +160,57 @@ import { publicImage } from "../lib/images";
     font-size: 10px;
   }
 
+  /* "Tap to rotate" overlay: phones only */
+  .tap {
+    display: none;
+  }
+
+  /* Phones: swipeable row, ~78% cards so the next one peeks in */
   @media (max-width: 759px) {
     .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      overscroll-behavior-x: contain;
+      /* run edge to edge, but snap cards to the page column */
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
     }
-  }
-  @media (max-width: 600px) {
-    .grid {
-      grid-template-columns: 1fr;
+    .grid::-webkit-scrollbar {
+      display: none;
+    }
+    .grid > li {
+      flex: 0 0 78vw;
+      scroll-snap-align: start;
+    }
+
+    .hint {
+      display: none;
+    }
+
+    .tap {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 0 10px;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+    .tap .label {
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 10px;
+    }
+    .tap[hidden] {
+      display: none;
     }
   }
 </style>
@@ -188,4 +238,38 @@ import { publicImage } from "../lib/images";
     );
     viewers.forEach((v) => io.observe(v));
   }
+
+  // Phones: swiping over a model scrolls the row. Rotation is off until the model is
+  // tapped, and switches off again once that model scrolls out of view.
+  const phone = matchMedia("(max-width: 759px)");
+  const cards = [...document.querySelectorAll<HTMLLIElement>("#cad .grid > li")]
+    .map((li) => ({ viewer: li.querySelector("model-viewer"), tap: li.querySelector<HTMLButtonElement>(".tap") }))
+    .filter((c): c is { viewer: Element; tap: HTMLButtonElement } => !!c.viewer && !!c.tap);
+
+  const lock = (c: (typeof cards)[number]) => {
+    c.viewer.removeAttribute("camera-controls");
+    c.tap.hidden = false;
+  };
+  const unlock = (c: (typeof cards)[number]) => {
+    c.viewer.setAttribute("camera-controls", "");
+    c.tap.hidden = true;
+  };
+  const applyMode = () => cards.forEach((c) => (phone.matches ? lock(c) : unlock(c)));
+
+  cards.forEach((c) => c.tap.addEventListener("click", () => unlock(c)));
+
+  const away = new IntersectionObserver(
+    (entries) => {
+      if (!phone.matches) return;
+      entries.forEach((e) => {
+        const c = cards.find((x) => x.viewer === e.target);
+        if (c && !e.isIntersecting) lock(c);
+      });
+    },
+    { root: document.querySelector("#cad .grid"), threshold: 0.4 },
+  );
+  cards.forEach((c) => away.observe(c.viewer));
+
+  applyMode();
+  phone.addEventListener("change", applyMode);
 </script>

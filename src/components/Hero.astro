@@ -24,8 +24,13 @@
 
   .tagline {
     margin: 14px 0 0;
-    font-size: clamp(16px, 1.6vw, 18px);
+    font-size: clamp(14px, 3.6vw, 18px);
     line-height: 1.4;
+    /* always wrap, never clip */
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: break-word;
+    max-width: 100%;
   }
 
   .school {

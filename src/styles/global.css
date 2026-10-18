@@ -28,16 +28,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141311;
-    --fg: #edeae3;
-    --muted: #9c988f;
-    --accent-text: #f28c28;
-    color-scheme: dark;
-  }
-}
-
+/* Light is the default; dark only when the visitor picks it (data-theme set in <head>). */
 :root[data-theme="dark"] {
   --bg: #141311;
   --fg: #edeae3;

@@ -126,25 +126,14 @@ const resume = links.find((l) => l.id === "resume");
   :global(:root[data-theme="dark"]) .moon {
     color: var(--on-accent);
   }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme="light"])) .knob {
-      transform: translateX(30px);
-    }
-    :global(:root:not([data-theme="light"])) .sun {
-      color: inherit;
-    }
-    :global(:root:not([data-theme="light"])) .moon {
-      color: var(--on-accent);
-    }
-  }
 </style>
 
 <script>
-  // Live local time in Urbana.
+  // Live local time in Urbana, e.g. "7:24 PM CDT". Set now, then on each minute boundary.
   const clock = document.getElementById("clock");
   if (clock) {
     const fmt = new Intl.DateTimeFormat("en-US", {
-      timeZone: clock.dataset.tz,
+      timeZone: "America/Chicago",
       hour: "numeric",
       minute: "2-digit",
       timeZoneName: "short",
@@ -154,18 +143,23 @@ const resume = links.find((l) => l.id === "resume");
     };
     tick();
     clock.hidden = false;
-    setInterval(tick, 15_000);
+    const msToNextMinute = 60_000 - (Date.now() % 60_000);
+    setTimeout(() => {
+      tick();
+      setInterval(tick, 60_000);
+    }, msToNextMinute);
   }
 
-  // Day/night switch: overrides the system setting and remembers the choice.
+  // Day/night switch. The site starts in light mode; a visitor's choice is remembered.
   const toggle = document.getElementById("theme-toggle");
   const root = document.documentElement;
-  const system = matchMedia("(prefers-color-scheme: dark)");
-  const isDark = () => root.dataset.theme === "dark" || (!root.dataset.theme && system.matches);
-  const sync = () => toggle?.setAttribute("aria-checked", String(isDark()));
+  const isDark = () => root.dataset.theme === "dark";
+  const sync = () => {
+    toggle?.setAttribute("aria-checked", String(isDark()));
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isDark() ? "#141311" : "#f7f4ee");
+  };
 
   sync();
-  system.addEventListener("change", sync);
   toggle?.addEventListener("click", () => {
     const next = isDark() ? "light" : "dark";
     root.dataset.theme = next;

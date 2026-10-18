@@ -6,6 +6,7 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "../styles/global.css";
 import Stars from "../components/Stars.astro";
+import Ruler from "../components/Ruler.astro";
 
 interface Props {
   title: string;
@@ -23,8 +24,7 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url).href;
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141311" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f4ee" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -34,17 +34,23 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url).href;
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Apply a saved day/night choice before paint; otherwise follow the system. -->
+    <!-- Light mode by default (ignores the system setting); apply a saved choice before paint. -->
     <script is:inline>
-      try {
-        const t = localStorage.getItem("theme");
-        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
-      } catch {}
+      (function () {
+        var t = "light";
+        try {
+          if (localStorage.getItem("theme") === "dark") t = "dark";
+        } catch (e) {}
+        document.documentElement.dataset.theme = t;
+        if (t === "dark") document.querySelector('meta[name="theme-color"]').setAttribute("content", "#141311");
+      })();
     </script>
   </head>
   <body>
     <Stars />
+    <Ruler edge="top" />
     <a class="skip" href="#main">Skip to content</a>
     <slot />
+    <Ruler edge="bottom" />
   </body>
 </html>

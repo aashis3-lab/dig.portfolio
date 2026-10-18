@@ -53,8 +53,6 @@ export interface Photo {
   alt: string;
   /** Short caption (optional). */
   caption?: string;
-  /** Tile shape in the assorted grid; omit for a regular square. */
-  size?: "big" | "wide" | "tall";
 }
 
 export interface Link {
