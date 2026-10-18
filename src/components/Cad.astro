@@ -1,0 +1,191 @@
+---
+import { cad } from "../data/cad";
+import { publicImage } from "../lib/images";
+---
+
+<section class="section wrap" id="cad" aria-labelledby="cad-label">
+  <h2 id="cad-label" class="section-label label">Solid Modeling</h2>
+
+  <ul class="grid" role="list">
+    {
+      cad.map((r) => (
+        <li class="tile card">
+          <div class="plate">
+            {r.model ? (
+              <model-viewer
+                src={publicImage("cad", r.model)}
+                alt={r.alt}
+                camera-controls
+                disable-zoom
+                disable-pan
+                touch-action="pan-y"
+                interaction-prompt="none"
+                loading="lazy"
+                environment-image="neutral"
+                shadow-intensity="0"
+              >
+                {/* Light placeholder shown until the model has loaded */}
+                <div slot="poster" class="poster">
+                  <span class="cube" aria-hidden="true" />
+                  <span class="label muted">3D model loads here</span>
+                </div>
+              </model-viewer>
+            ) : r.image ? (
+              <img src={publicImage("cad", r.image)} alt={r.alt} loading="lazy" decoding="async" />
+            ) : (
+              <span class="placeholder label" role="img" aria-label={r.alt}>
+                [TODO: render]
+              </span>
+            )}
+          </div>
+          <p class="caption label">
+            {r.url ? (
+              <a class="link" href={r.url} target="_blank" rel="noopener noreferrer">
+                {r.name}
+              </a>
+            ) : (
+              <span>{r.name}</span>
+            )}
+            {r.year && <span class="muted">· {r.year}</span>}
+            {r.model && <span class="hint muted">Drag to rotate</span>}
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .plate {
+    aspect-ratio: 1;
+    background: var(--plate);
+    display: grid;
+    place-items: center;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .plate :global(img),
+  model-viewer {
+    width: 100%;
+    height: 100%;
+    filter: grayscale(1) contrast(1.05);
+  }
+
+  .plate :global(img) {
+    object-fit: contain;
+  }
+
+  model-viewer {
+    --poster-color: transparent;
+    background: transparent;
+    cursor: grab;
+  }
+  model-viewer:active {
+    cursor: grabbing;
+  }
+  model-viewer:not(:defined) {
+    display: block;
+  }
+
+  .poster {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--plate);
+  }
+  model-viewer:not(:defined) .poster {
+    position: relative;
+    height: 100%;
+  }
+  .poster .label {
+    font-size: 10px;
+  }
+  /* Simple wireframe cube glyph */
+  .cube {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--muted);
+    border-radius: 4px;
+    transform: rotate(45deg) skew(-8deg, -8deg);
+    opacity: 0.6;
+  }
+
+  /* The focusable element lives inside the viewer's shadow DOM, so show the ring here */
+  model-viewer:focus-within {
+    outline: 2px solid var(--accent-text);
+    outline-offset: -2px;
+  }
+
+  .placeholder {
+    color: var(--muted);
+    text-transform: none;
+  }
+
+  .caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 6px;
+    margin: 0;
+    padding: 10px 12px;
+  }
+
+  .hint {
+    margin-left: auto;
+    font-size: 10px;
+  }
+
+  @media (max-width: 759px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Load the 3D viewer only when the CAD section gets close to the screen.
+  const viewers = document.querySelectorAll("#cad model-viewer");
+  if (viewers.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        // Use the self-hosted Draco decoder (public/draco) instead of Google's CDN.
+        (window as any).ModelViewerElement = { dracoDecoderLocation: "/draco/" };
+        import("@google/model-viewer").then(() => {
+          // Each viewer has an internal "Live announcements" region; name them uniquely for screen readers.
+          viewers.forEach(async (v) => {
+            await (v as any).updateComplete;
+            const region = v.shadowRoot?.querySelector('[role="region"]');
+            region?.setAttribute("aria-label", `${v.getAttribute("alt")}: announcements`);
+          });
+        });
+      },
+      { rootMargin: "600px" },
+    );
+    viewers.forEach((v) => io.observe(v));
+  }
+</script>

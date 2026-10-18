@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.vercel/
+.env
+.env.*
+.DS_Store
+
+# Source files kept locally, not published (the site uses the compressed copies in public/)
+cad files/
+unused/

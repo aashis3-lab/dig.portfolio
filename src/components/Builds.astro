@@ -1,0 +1,203 @@
+---
+import { builds } from "../data/builds";
+import { TAGS } from "../data/types";
+import { publicImage } from "../lib/images";
+import Todo from "./Todo.astro";
+
+// Only show chips for tags that at least one build uses.
+const used = TAGS.filter((t) => builds.some((b) => b.tags.includes(t)));
+---
+
+<section class="section wrap" id="builds" aria-labelledby="builds-label">
+  <h2 id="builds-label" class="section-label label">Builds</h2>
+
+  <div class="chips" role="group" aria-label="Filter builds by tag">
+    <button type="button" class="chip label" data-filter="all" aria-pressed="true">All</button>
+    {
+      used.map((t) => (
+        <button type="button" class="chip label" data-filter={t} aria-pressed="false">
+          {t}
+        </button>
+      ))
+    }
+  </div>
+  <p id="builds-status" class="visually-hidden" aria-live="polite"></p>
+
+  <ul class="grid" role="list">
+    {
+      builds.map((b) => {
+        const Tag = b.url ? "a" : "div";
+        const attrs = b.url ? { href: b.url, target: "_blank", rel: "noopener noreferrer" } : {};
+        return (
+          <li data-tags={b.tags.join("|")}>
+            <Tag class="tile card" {...attrs}>
+              <div class="cover">
+                {b.image ? (
+                  <img src={publicImage("builds", b.image)} alt={b.alt ?? ""} loading="lazy" decoding="async" />
+                ) : (
+                  <span class="letter" aria-hidden="true">
+                    {b.title.charAt(0)}
+                  </span>
+                )}
+              </div>
+              <div class="body">
+                <div class="top">
+                  <h3 class="title">{b.title}</h3>
+                  <span class="label muted">{b.date || <Todo label="date" />}</span>
+                </div>
+                <p class="line">{b.line || <Todo label="one line" />}</p>
+                <span class="tags label muted">{b.tags.join(" · ")}</span>
+              </div>
+              {b.url && <span class="visually-hidden">(opens in a new tab)</span>}
+            </Tag>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>
+
+<style>
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .chip {
+    min-height: 32px;
+    padding: 0 12px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition:
+      color 150ms ease,
+      border-color 150ms ease;
+  }
+
+  .chip:hover {
+    color: var(--fg);
+    border-color: var(--accent);
+  }
+
+  .chip[aria-pressed="true"] {
+    color: var(--on-accent);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .chip[aria-pressed="true"]:active {
+    background: var(--accent-strong);
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 10px;
+  }
+
+  .cover {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--plate);
+    display: grid;
+    place-items: center;
+    transition: transform 150ms ease;
+  }
+  a:hover .cover,
+  a:focus-visible .cover {
+    transform: translateY(-2px);
+  }
+
+  .cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .letter {
+    font-family: var(--serif);
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--muted);
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    padding: 12px 6px 6px;
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .line {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .tags {
+    margin-top: auto;
+    padding-top: 4px;
+    font-size: 10px;
+  }
+
+  @media (max-width: 759px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 600px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Tag filter: show/hide tiles instantly.
+  const chips = document.querySelectorAll<HTMLButtonElement>("#builds .chip");
+  const items = document.querySelectorAll<HTMLLIElement>("#builds .grid li");
+  const status = document.getElementById("builds-status");
+
+  chips.forEach((chip) =>
+    chip.addEventListener("click", () => {
+      const f = chip.dataset.filter!;
+      chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+      let shown = 0;
+      items.forEach((li) => {
+        const match = f === "all" || li.dataset.tags!.split("|").includes(f);
+        li.hidden = !match;
+        if (match) shown++;
+      });
+      if (status) status.textContent = `${shown} build${shown === 1 ? "" : "s"} shown`;
+    }),
+  );
+</script>

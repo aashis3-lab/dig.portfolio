@@ -1,0 +1,210 @@
+/* ---------- Tokens ---------- */
+
+:root {
+  --accent: #f28c28; /* marigold: hover states, active chip, toggle knob, favicon */
+  --accent-strong: #d9731a; /* hover/pressed */
+  --on-accent: #1d1d1b;
+  /* Marigold for text, icons and focus rings: darkened in light mode so it
+     meets contrast on the cream background (4.9:1); plain marigold in dark. */
+  --accent-text: #a8540e;
+
+  --bg: #f7f4ee;
+  --fg: #1d1d1b;
+  --muted: #62615a;
+
+  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --gutter: 24px;
+  --max: 720px; /* content column; everything aligns to it */
+  --radius: 12px;
+
+  color-scheme: light;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --gutter: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141311;
+    --fg: #edeae3;
+    --muted: #9c988f;
+    --accent-text: #f28c28;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #141311;
+  --fg: #edeae3;
+  --muted: #9c988f;
+  --accent-text: #f28c28;
+  color-scheme: dark;
+}
+
+:root {
+  /* derived from the text color so both themes stay in step */
+  --line: color-mix(in srgb, var(--fg) 10%, transparent);
+  --plate: color-mix(in srgb, var(--fg) 5%, var(--bg));
+}
+
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  animation: fade-in 500ms ease-out both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  padding: 8px 12px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+.skip:focus {
+  top: 12px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--max) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---------- Shared pieces ---------- */
+
+/* Small uppercase labels, dates, tags */
+.label {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* Text link: marigold underline on hover */
+.link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 150ms ease;
+}
+.link:hover,
+.link:focus-visible {
+  text-decoration-color: var(--accent-text);
+}
+
+/* Card used by Experience, CAD and Builds */
+.tile {
+  display: block;
+  background: var(--bg); /* solid, so night-mode stars never show through */
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color 150ms ease;
+}
+a.tile:hover,
+a.tile:focus-visible {
+  border-color: var(--accent);
+}
+a.tile:active {
+  border-color: var(--accent-strong);
+}
+a.tile:focus-visible {
+  outline-offset: 2px;
+}
+
+.section {
+  padding-top: 56px;
+}
+
+.section-label {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.todo {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--muted);
+  border: 1px dashed currentColor;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

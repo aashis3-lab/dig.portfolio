@@ -1,0 +1,154 @@
+---
+import { experience } from "../data/experience";
+import { publicFile } from "../lib/images";
+import Icon from "./Icon.astro";
+import Todo from "./Todo.astro";
+
+const rows = experience.map((e) => ({ ...e, logo: publicFile(`logos/${e.slug}`) }));
+---
+
+<section class="section wrap" id="experience" aria-labelledby="experience-label">
+  <h2 id="experience-label" class="section-label label">Experience</h2>
+
+  <ul class="list" role="list">
+    {
+      rows.map((e) => {
+        const Tag = e.url ? "a" : "div";
+        const attrs = e.url ? { href: e.url, target: "_blank", rel: "noopener noreferrer" } : {};
+        return (
+          <li>
+            <Tag class="exp" {...attrs}>
+              {e.logo ? (
+                <img class="logo" src={e.logo} alt="" width="40" height="40" loading="lazy" />
+              ) : (
+                <span class="logo mono-gram" aria-hidden="true">
+                  {e.org.charAt(0)}
+                </span>
+              )}
+              <div class="who">
+                <span class="org">{e.org}</span>
+                <span class="role muted">{e.role}</span>
+              </div>
+              <div class="end">
+                <span class="label muted">{e.dates || <Todo label="dates" />}</span>
+                {e.url ? (
+                  <span class="arrow" aria-hidden="true">
+                    <Icon name="arrow" size={16} />
+                  </span>
+                ) : (
+                  <Todo label="link" />
+                )}
+              </div>
+              <p class="line">{e.line || <Todo label="one line" />}</p>
+              {e.url && <span class="visually-hidden">(opens in a new tab)</span>}
+            </Tag>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>
+
+<style>
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+
+  /* Rows separated by hairlines: one above each entry, one under the last */
+  .list li {
+    border-top: 1px solid var(--line);
+  }
+  .list li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .exp {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    column-gap: 12px;
+    row-gap: 8px;
+    align-items: center;
+    padding: 14px 0;
+  }
+
+  /* Logo fills its square edge to edge */
+  .logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    object-fit: cover;
+    background: var(--plate);
+  }
+
+  .mono-gram {
+    display: grid;
+    place-items: center;
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    line-height: 1;
+    color: var(--muted);
+  }
+
+  .who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.35;
+  }
+
+  .org {
+    font-weight: 600;
+    transition: color 150ms ease;
+  }
+  a:hover .org,
+  a:focus-visible .org {
+    color: var(--accent-text);
+  }
+
+  .role {
+    font-size: 14px;
+  }
+
+  .end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .arrow {
+    display: inline-grid;
+    color: var(--accent-text);
+    opacity: 0;
+    transition: opacity 150ms ease;
+  }
+  a:hover .arrow,
+  a:focus-visible .arrow {
+    opacity: 1;
+  }
+
+  .line {
+    grid-column: 2 / -1;
+    margin: 0;
+    font-size: 14px;
+    max-width: 70ch;
+  }
+
+  @media (max-width: 640px) {
+    .exp {
+      grid-template-columns: 40px minmax(0, 1fr);
+    }
+    .end {
+      grid-column: 1 / -1;
+      justify-content: space-between;
+    }
+    .line {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

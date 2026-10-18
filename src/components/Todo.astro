@@ -1,0 +1,9 @@
+---
+// A visible placeholder so missing content is easy to spot before launch.
+interface Props {
+  label?: string;
+}
+const { label = "" } = Astro.props;
+---
+
+<span class="todo">[TODO{label ? `: ${label}` : ""}]</span>

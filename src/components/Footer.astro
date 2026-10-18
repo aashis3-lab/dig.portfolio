@@ -1,0 +1,143 @@
+---
+import { email, links } from "../data/links";
+import { publicFile } from "../lib/images";
+
+// Reads like the end of an email: note → "Best," → signature → stacked signature block.
+// Signature is optional: public/signature.svg or .png. Hidden if missing.
+const signature = publicFile("signature");
+const year = new Date().getFullYear();
+
+const url = (id: string) => links.find((l) => l.id === id)?.url ?? null;
+const ext = (href: string) => (href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {});
+
+// Signature block lines; pairs share a line, separated by a thin pipe.
+const lines = [
+  [{ label: email, href: `mailto:${email}` }],
+  [
+    { label: "LinkedIn", href: url("linkedin") },
+    { label: "GitHub", href: url("github") },
+  ],
+  [
+    { label: "Book a Call", href: url("book") },
+    { label: "Resume", href: url("resume") },
+  ],
+];
+---
+
+<footer class="footer wrap" id="contact">
+  <p class="note">So glad you stopped by. If anything here sparked an idea, my inbox is open, and I reply fast :)</p>
+
+  <p class="best">Best,</p>
+  {signature && <span class="signature" style={`--sig: url("${signature}")`} role="img" aria-label="Aashi Shah's signature" />}
+
+  <address class="block">
+    <span class="name">Aashi Shah</span>
+    {
+      lines.map((line) => (
+        <span class="line">
+          {line.map((l, i) => (
+            <>
+              {i > 0 && (
+                <span class="sep" aria-hidden="true">
+                  |
+                </span>
+              )}
+              {l.href ? (
+                <a href={l.href} {...ext(l.href)}>
+                  {l.label}
+                </a>
+              ) : (
+                <span>{l.label}</span>
+              )}
+            </>
+          ))}
+        </span>
+      ))
+    }
+  </address>
+
+  <p class="fine muted">© {year} Aashi Shah</p>
+</footer>
+
+<style>
+  .footer {
+    margin-top: 56px;
+    padding-top: 32px;
+    padding-bottom: 24px;
+    border-top: 1px solid var(--line);
+  }
+
+  .note,
+  .best {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .note {
+    max-width: 520px;
+  }
+
+  .best {
+    margin-top: 20px;
+  }
+
+  /* The signature is used as a mask, so it's drawn in the text color:
+     near-black ink in light mode, off-white in dark mode. */
+  .signature {
+    display: block;
+    width: 180px;
+    aspect-ratio: 640 / 163;
+    margin: 8px 0 0 -4px;
+    background: var(--fg);
+    -webkit-mask: var(--sig) center / contain no-repeat;
+    mask: var(--sig) center / contain no-repeat;
+  }
+
+  .block {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .name {
+    font-weight: 600;
+  }
+
+  .line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
+  }
+
+  .sep {
+    color: var(--line);
+    color: color-mix(in srgb, var(--fg) 30%, transparent);
+  }
+
+  .block a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+    transition:
+      color 150ms ease,
+      text-decoration-color 150ms ease;
+  }
+  .block a:hover,
+  .block a:focus-visible {
+    color: var(--accent-text);
+    text-decoration-color: currentColor;
+  }
+
+  .fine {
+    margin: 40px 0 0;
+    font-size: 11px;
+  }
+</style>
