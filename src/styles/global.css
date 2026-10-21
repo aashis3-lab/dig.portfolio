@@ -46,6 +46,39 @@
   /* derived from the text color so both themes stay in step */
   --line: color-mix(in srgb, var(--fg) 10%, transparent);
   --plate: color-mix(in srgb, var(--fg) 5%, var(--bg));
+
+  /* The opposite theme, used by the header and footer (.invert) and the
+     outer edge of the sunset bands: day = dark / cream / dark, night = the reverse. */
+  --bg-opp: #141311;
+  --fg-opp: #edeae3;
+  --muted-opp: #9c988f;
+  --accent-text-opp: #f58a5e;
+}
+
+:root[data-theme="dark"] {
+  --bg-opp: #f7f4ee;
+  --fg-opp: #1d1d1b;
+  --muted-opp: #62615a;
+  --accent-text-opp: #b4441c;
+}
+
+/* Header and footer wear the opposite theme, edge to edge across the window */
+.invert {
+  --bg: var(--bg-opp);
+  --fg: var(--fg-opp);
+  --muted: var(--muted-opp);
+  --accent-text: var(--accent-text-opp);
+  --line: color-mix(in srgb, var(--fg) 14%, transparent);
+  --plate: color-mix(in srgb, var(--fg) 6%, var(--bg));
+  color-scheme: dark;
+  background: var(--bg);
+  color: var(--fg);
+  /* paint the background full-bleed while the content stays in the column */
+  box-shadow: 0 0 0 100vmax var(--bg);
+  clip-path: inset(0 -100vmax);
+}
+:root[data-theme="dark"] .invert {
+  color-scheme: light;
 }
 
 /* ---------- Base ---------- */

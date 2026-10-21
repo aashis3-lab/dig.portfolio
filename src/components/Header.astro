@@ -5,7 +5,7 @@ import Icon from "./Icon.astro";
 const resume = links.find((l) => l.id === "resume");
 ---
 
-<header class="header wrap">
+<header class="header wrap invert">
   <p class="where label muted">
     <span>{location.city}</span>
     <time id="clock" data-tz={location.timeZone} hidden></time>
@@ -157,7 +157,8 @@ const resume = links.find((l) => l.id === "resume");
   const isDark = () => root.dataset.theme === "dark";
   const sync = () => {
     toggle?.setAttribute("aria-checked", String(isDark()));
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isDark() ? "#141311" : "#f7f4ee");
+    // The browser bar matches the header, which wears the opposite theme.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isDark() ? "#f7f4ee" : "#141311");
   };
 
   sync();
