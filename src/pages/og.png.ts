@@ -43,7 +43,7 @@ export const GET: APIRoute = async () => {
         h("div", { fontSize: 30, marginTop: 10, color: "#62615A" }, "Systems Engineering & Design @ UIUC"),
       ]),
       h("div", { position: "absolute", left: 88, bottom: 72, display: "flex", alignItems: "center", fontSize: 22, letterSpacing: 2, color: "#62615A" }, [
-        h("div", { width: 18, height: 18, borderRadius: 9, backgroundColor: "#F28C28", marginRight: 16 }),
+        h("div", { width: 18, height: 18, borderRadius: 9, backgroundImage: "linear-gradient(135deg, #F2A93B, #F26B3A)", marginRight: 16 }),
         h("span", { fontWeight: 500 }, "URBANA, IL"),
       ]),
     ],

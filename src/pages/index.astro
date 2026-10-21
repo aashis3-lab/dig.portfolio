@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import Header from "../components/Header.astro";
+import Horizon from "../components/Horizon.astro";
 import Hero from "../components/Hero.astro";
 import Experience from "../components/Experience.astro";
 import Cad from "../components/Cad.astro";
@@ -14,6 +15,7 @@ import Footer from "../components/Footer.astro";
   description="Aashi Shah: building products where digital and physical marry. Systems Engineering & Design @ UIUC."
 >
   <Header />
+  <Horizon edge="top" />
   <main id="main">
     <Hero />
     <Experience />
@@ -21,5 +23,6 @@ import Footer from "../components/Footer.astro";
     <Builds />
     <Photos />
   </main>
+  <Horizon edge="bottom" />
   <Footer />
 </Base>

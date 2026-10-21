@@ -85,11 +85,12 @@ const used = TAGS.filter((t) => builds.some((b) => b.tags.includes(t)));
 
   .chip[aria-pressed="true"] {
     color: var(--on-accent);
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--accent-grad);
+    border-color: transparent;
   }
   .chip[aria-pressed="true"]:active {
-    background: var(--accent-strong);
+    background: var(--accent-grad);
+    filter: brightness(0.92);
   }
 
   .grid {

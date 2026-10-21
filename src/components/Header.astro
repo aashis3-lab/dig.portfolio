@@ -92,11 +92,12 @@ const resume = links.find((l) => l.id === "resume");
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: var(--accent);
+    background: var(--accent-grad);
     transition: transform 150ms ease;
   }
   .switch:active .knob {
-    background: var(--accent-strong);
+    background: var(--accent-grad);
+    filter: brightness(0.92);
   }
 
   .ico {

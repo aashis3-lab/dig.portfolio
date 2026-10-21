@@ -1,12 +1,17 @@
 /* ---------- Tokens ---------- */
 
 :root {
-  --accent: #f28c28; /* marigold: hover states, active chip, toggle knob, favicon */
-  --accent-strong: #d9731a; /* hover/pressed */
-  --on-accent: #1d1d1b;
-  /* Marigold for text, icons and focus rings: darkened in light mode so it
-     meets contrast on the cream background (4.9:1); plain marigold in dark. */
-  --accent-text: #a8540e;
+  /* Sunset accent: marigold → sunset orange. The gradient fills the toggle knob,
+     the active chip and the favicon; solid sunset is used for hover borders. */
+  --marigold: #f2a93b;
+  --sunset: #f26b3a;
+  --accent-grad: linear-gradient(90deg, var(--marigold), var(--sunset));
+  --accent: var(--sunset);
+  --accent-strong: #d9541f; /* pressed */
+  --on-accent: #1d1d1b; /* ink on the gradient: 5.6–8.5:1 */
+  /* Solid sunset for text, icons and focus rings: deepened in light mode so it
+     meets contrast on the cream background (5.1:1); lighter in dark (7.7:1). */
+  --accent-text: #b4441c;
 
   --bg: #f7f4ee;
   --fg: #1d1d1b;
@@ -33,7 +38,7 @@
   --bg: #141311;
   --fg: #edeae3;
   --muted: #9c988f;
-  --accent-text: #f28c28;
+  --accent-text: #f58a5e;
   color-scheme: dark;
 }
 

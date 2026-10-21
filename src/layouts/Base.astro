@@ -6,8 +6,6 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "../styles/global.css";
 import Stars from "../components/Stars.astro";
-import Ruler from "../components/Ruler.astro";
-
 interface Props {
   title: string;
   description: string;
@@ -48,9 +46,7 @@ const ogImage = new URL("/og.png", Astro.site ?? Astro.url).href;
   </head>
   <body>
     <Stars />
-    <Ruler edge="top" />
     <a class="skip" href="#main">Skip to content</a>
     <slot />
-    <Ruler edge="bottom" />
   </body>
 </html>
